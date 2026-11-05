@@ -19,46 +19,39 @@ class QuizController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:200'],
-            'ocean_zone' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(['completed', 'not_started'])],
         ]);
         $userId = $request->user()->id;
         $runs->advanceDue($userId);
         $availableSets = QuizSet::where('is_active', true)->has('questions');
-        $zones = (clone $availableSets)->select('ocean_zone')->distinct()->orderBy('ocean_zone')->pluck('ocean_zone');
         $quizSets = $availableSets
             ->withCount('questions')
             ->withCount(['attempts as user_attempts_count' => fn ($query) => $query->where('user_id', $userId)])
             ->when(trim($filters['search'] ?? ''), function ($query, $search) {
                 $query->where(fn ($query) => $query->where('title', 'like', '%'.$search.'%')->orWhere('topic', 'like', '%'.$search.'%'));
             })
-            ->when($filters['ocean_zone'] ?? null, fn ($query, $zone) => $query->where('ocean_zone', $zone))
             ->when(($filters['status'] ?? '') === 'completed', fn ($query) => $query->whereHas('attempts', fn ($query) => $query->where('user_id', $userId)))
             ->when(($filters['status'] ?? '') === 'not_started', fn ($query) => $query->whereDoesntHave('attempts', fn ($query) => $query->where('user_id', $userId)))
             ->latest('id')->paginate(10)->withQueryString();
 
-        return view('quiz.index', compact('quizSets', 'zones', 'filters'));
+        return view('quiz.index', compact('quizSets', 'filters'));
     }
 
     public function history(Request $request, TimedQuizRuns $runs)
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:200'],
-            'ocean_zone' => ['nullable', 'string', 'max:255'],
         ]);
         $userId = $request->user()->id;
         $runs->advanceDue($userId);
-        $zones = QuizSet::whereHas('attempts', fn ($query) => $query->where('user_id', $userId))
-            ->select('ocean_zone')->distinct()->orderBy('ocean_zone')->pluck('ocean_zone');
         $attempts = QuizAttempt::with(['quizSet', 'answers.question'])
             ->where('user_id', $userId)
             ->when(trim($filters['search'] ?? ''), function ($query, $search) {
                 $query->whereHas('quizSet', fn ($query) => $query->where(fn ($query) => $query->where('title', 'like', '%'.$search.'%')->orWhere('topic', 'like', '%'.$search.'%')));
             })
-            ->when($filters['ocean_zone'] ?? null, fn ($query, $zone) => $query->whereHas('quizSet', fn ($query) => $query->where('ocean_zone', $zone)))
             ->latest('id')->paginate(10)->withQueryString();
 
-        return view('quiz.history', compact('attempts', 'zones', 'filters'));
+        return view('quiz.history', compact('attempts', 'filters'));
     }
 
     public function random()
