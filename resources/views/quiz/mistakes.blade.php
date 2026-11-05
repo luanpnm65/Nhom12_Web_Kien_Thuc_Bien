@@ -64,7 +64,7 @@
             <p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem;">
                 Bạn không có câu trả lời sai nào trong 5 lượt làm bài gần nhất.
             </p>
-            <a href="{{ route('quiz.play') }}" class="btn btn-primary">🚀 Chinh Phục Bài Thi Tiếp Theo</a>
+            <a href="{{ route('quiz.index') }}" class="btn btn-primary">🚀 Chinh Phục Bài Thi Tiếp Theo</a>
         </div>
     @endforelse
 </div>

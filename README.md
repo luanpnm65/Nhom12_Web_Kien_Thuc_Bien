@@ -7,6 +7,16 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Chốt lượt quiz khi hết giờ
+
+Sau khi chạy `php artisan migrate`, `composer dev` sẽ chạy ứng dụng cùng trình lập lịch.
+
+Khi dùng XAMPP trên Windows, tác vụ **AbyssalMind Quiz Scheduler** kiểm tra MySQL lúc đăng nhập và mỗi phút. Khi MySQL sẵn sàng, tác vụ khởi động trình lập lịch nếu cần. Có thể đăng ký lại tác vụ cho tài khoản Windows hiện tại từ thư mục dự án.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\XamppQuizScheduler.ps1 -Install
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

@@ -19,6 +19,8 @@
             <a href="{{ route('leaderboard') }}" class="nav-link {{ request()->routeIs('leaderboard') ? 'active' : '' }}">🏆 Bảng Xếp Hạng</a>
 
             @auth
+                <a href="{{ route('quiz.index') }}" class="nav-link {{ request()->routeIs('quiz.index', 'quiz.play', 'quiz.run') ? 'active' : '' }}">Chọn bài làm</a>
+                <a href="{{ route('quiz.history') }}" class="nav-link {{ request()->routeIs('quiz.history') ? 'active' : '' }}">Lịch sử làm bài</a>
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Bảng Điều Khiển</a>
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.index') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" style="color:#fbbf24;">⚡ Trung Tâm AI (Admin)</a>

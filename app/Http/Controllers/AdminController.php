@@ -28,7 +28,7 @@ class AdminController extends Controller
         }
 
         return view('admin.index', [
-            'quizSets' => QuizSet::withCount('questions', 'attempts')->latest()->get(),
+            'quizSets' => QuizSet::withCount('questions', 'attempts')->latest('id')->paginate(10, ['*'], 'sets_page')->withQueryString(),
             'reviewSet' => QuizSet::with('questions')->latest('id')->first(),
             'articles' => Article::orderBy('title')->get(['id', 'title']),
             'configured' => (bool) config('services.gemini.key'),

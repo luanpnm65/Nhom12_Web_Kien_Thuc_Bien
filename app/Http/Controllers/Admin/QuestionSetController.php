@@ -53,7 +53,7 @@ class QuestionSetController extends Controller
         $this->validateChoices($data['questions']);
         DB::transaction(function () use ($questionSet, $data) {
             $set = $this->lock($questionSet);
-            abort_if($set->is_active || $set->attempts()->exists(), 422, 'Bộ đã xuất bản hoặc có lượt làm; không sửa nội dung.');
+            abort_if($set->is_active || $set->attempts()->exists() || $set->runs()->exists(), 422, 'Bộ đã xuất bản hoặc có lượt làm; không sửa nội dung.');
             $set->update(['title' => $data['title'], 'ocean_zone' => $data['ocean_zone']]);
             $set->questions()->delete();
             foreach ($data['questions'] as $q) {
@@ -100,7 +100,7 @@ class QuestionSetController extends Controller
     {
         DB::transaction(function () use ($questionSet) {
             $set = $this->lock($questionSet);
-            abort_if($set->is_active || $set->attempts()->exists(), 422, 'Chỉ xóa bộ nháp chưa có lượt làm.');
+            abort_if($set->is_active || $set->attempts()->exists() || $set->runs()->exists(), 422, 'Chỉ xóa bộ nháp chưa có lượt làm.');
             $set->delete();
         });
 
