@@ -14,6 +14,8 @@ use RuntimeException;
 
 class AiGenerationController extends Controller
 {
+    private const DEFAULT_OCEAN_ZONE = 'Chưa phân loại';
+
     public function index()
     {
         return view('admin.ai', ['articles' => Article::orderBy('title')->get(), 'logs' => AiGenerationLog::with(['article', 'quizSet'])->latest('id')->paginate(10)->withQueryString(), 'configured' => (bool) config('services.gemini.key'), 'model' => config('services.gemini.model')]);
@@ -21,7 +23,8 @@ class AiGenerationController extends Controller
 
     public function store(Request $request, GeminiService $gemini)
     {
-        $data = $request->validate(['article_id' => 'required|integer|exists:articles,id', 'title' => 'required|string|max:200', 'ocean_zone' => 'required|string|max:255']);
+        $data = $request->validate(['article_id' => 'required|integer|exists:articles,id', 'title' => 'required|string|max:200', 'ocean_zone' => 'nullable|string|max:255']);
+        $oceanZone = $data['ocean_zone'] ?? self::DEFAULT_OCEAN_ZONE;
         $article = Article::findOrFail($data['article_id']);
         $log = AiGenerationLog::create(['article_id' => $article->id, 'user_id' => $request->user()->id, 'model' => config('services.gemini.model'), 'status' => 'pending']);
         try {
@@ -33,12 +36,12 @@ class AiGenerationController extends Controller
             $safe = $key ? str_replace([$key, rawurlencode($key)], '[REDACTED]', $raw) : $raw;
             $log->update(['response_text' => mb_substr($safe, 0, 30000)]);
             $questions = $gemini->validateQuestions($raw);
-            $set = DB::transaction(function () use ($article, $data, $questions, $log, $request) {
+            $set = DB::transaction(function () use ($article, $data, $questions, $log, $request, $oceanZone) {
                 $current = Article::whereKey($article->id)->lockForUpdate()->firstOrFail();
                 if ($current->content !== $article->content) {
                     throw new RuntimeException('Bài vừa thay đổi trong lúc sinh câu hỏi. Hãy thử lại.');
                 }
-                $set = QuizSet::create(['article_id' => $current->id, 'title' => $data['title'], 'topic' => $current->title, 'ocean_zone' => $data['ocean_zone'], 'reading_passage' => $current->content, 'source_url' => $current->source_url, 'is_active' => false, 'source' => 'ai', 'created_by' => $request->user()->id]);
+                $set = QuizSet::create(['article_id' => $current->id, 'title' => $data['title'], 'topic' => $current->title, 'ocean_zone' => $oceanZone, 'reading_passage' => $current->content, 'source_url' => $current->source_url, 'is_active' => false, 'source' => 'ai', 'created_by' => $request->user()->id]);
                 foreach ($questions as $q) {
                     $set->questions()->create(['question_text' => trim($q['content']), 'options' => array_map('trim', $q['options']), 'correct_option_index' => $q['correct_index'], 'explanation' => trim($q['explanation']), 'time_limit' => 20]);
                 }
