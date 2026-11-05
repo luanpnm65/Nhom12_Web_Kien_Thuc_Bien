@@ -71,13 +71,13 @@
                     banner.style.background = 'rgba(34, 197, 94, 0.25)';
                     banner.style.border = '1px solid #4ade80';
                     banner.style.color = '#4ade80';
-                    banner.textContent = `✅ Chính xác! +${points.format(feedback.points_earned)} điểm (${Number(feedback.time_taken).toFixed(1)} giây)`;
+                    banner.textContent = `Chính xác! +${points.format(feedback.points_earned)} điểm (${Number(feedback.time_taken).toFixed(1)} giây)`;
                 } else {
                     banner.style.background = 'rgba(239, 68, 68, 0.25)';
                     banner.style.border = '1px solid #f87171';
                     banner.style.color = '#fca5a5';
                     const message = feedback.selected_option_index === null ? 'Hết giờ!' : 'Chưa chính xác!';
-                    banner.textContent = `❌ ${message} Đáp án đúng là ${question.options[feedback.correct_option_index]}.`;
+                    banner.textContent = `${message} Đáp án đúng là ${question.options[feedback.correct_option_index]}.`;
                 }
             }
         }

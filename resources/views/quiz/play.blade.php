@@ -16,10 +16,10 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <span class="zone-depth-pill">BƯỚC 1 / 2 • ĐỌC TƯ LIỆU KHOA HỌC</span>
-                <span style="margin-left: 0.65rem; font-size: 0.85rem; color: var(--text-muted);">🌊 {{ $quizSet->ocean_zone }}</span>
+                <span style="margin-left: 0.65rem; font-size: 0.85rem; color: var(--text-muted);">{{ $quizSet->ocean_zone }}</span>
             </div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 700; color: var(--cyan-glow);">
-                ⏳ <span id="readingTimeText">--:--</span>
+                <span id="readingTimeText">--:--</span>
             </div>
         </div>
 
@@ -33,10 +33,10 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1.5rem; margin-top: 1.5rem;">
             <div style="font-size: 0.88rem; color: var(--text-muted);">
-                📌 Gồm <strong>{{ $runState['total_questions'] }} câu hỏi tính điểm tốc độ</strong> dựa trên bài đọc này. Đồng hồ vẫn chạy khi bạn rời trang.
+                Gồm <strong>{{ $runState['total_questions'] }} câu hỏi tính điểm tốc độ</strong> dựa trên bài đọc này. Đồng hồ vẫn chạy khi bạn rời trang.
             </div>
             <button type="button" id="startQuizEarlyBtn" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.9rem 1.8rem;">
-                ⚡ Bắt Đầu Trả Lời Sớm →
+                Bắt Đầu Trả Lời Sớm →
             </button>
         </div>
     </div>
@@ -50,11 +50,11 @@
             </div>
 
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.45rem; font-weight: 800; color: #fbbf24;">
-                ⏱️ <span id="questionTimerDisplay">--.-</span>s
+                <span id="questionTimerDisplay">--.-</span>s
             </div>
 
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800; color: #4ade80;">
-                🏆 <span id="liveScoreDisplay">0</span> điểm
+                <span id="liveScoreDisplay">0</span> điểm
             </div>
         </div>
 
@@ -90,7 +90,6 @@
 
     <!-- MÀN HÌNH TỔNG KẾT ĐIỂM -->
     <div id="quizCompletionBox" class="reading-journal-box" style="display: none; text-align: center;">
-        <div style="font-size: 4rem; margin-bottom: 0.5rem;">🏆</div>
         <h2 style="font-size: 2.2rem;">Hoàn Thành Chuyến Thám Hiểm!</h2>
         <p id="quizSaveStatus" role="status" style="color: var(--text-muted); margin-bottom: 1.5rem;">Đang lưu kết quả…</p>
 
@@ -106,8 +105,8 @@
         </div>
 
         <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
-            <a href="{{ route('quiz.history') }}" class="btn btn-primary">📊 Xem Chi Tiết Đúng/Sai</a>
-            <a href="{{ route('leaderboard') }}" class="btn btn-outline">🌍 Bảng Xếp Hạng</a>
+            <a href="{{ route('quiz.history') }}" class="btn btn-primary">Xem Chi Tiết Đúng/Sai</a>
+            <a href="{{ route('leaderboard') }}" class="btn btn-outline">Bảng Xếp Hạng</a>
         </div>
     </div>
 
