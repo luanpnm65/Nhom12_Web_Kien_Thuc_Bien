@@ -70,6 +70,10 @@
             <!-- TẦNG 1: 0m -->
             <section class="ocean-zone-section" id="zone-0" data-depth="0" data-zone="Tầng Ánh Sáng (0m - 200m)">
                 <div class="zone-card">
+                    <figure class="zone-visual">
+                        <img src="{{ asset('images/zones/tang-anh-sang.jpg') }}" alt="Rạn san hô trong ánh sáng mặt trời ở tầng ánh sáng" width="1200" height="670" loading="lazy">
+                        <figcaption>Độ sâu 0 – 200 m</figcaption>
+                    </figure>
                     <div class="zone-header">
                         <span class="zone-depth-pill">ĐỘ SÂU: 0m – 200m</span>
                         <span class="zone-topic">Quang Hợp &amp; Rạn San Hô</span>
@@ -98,6 +102,10 @@
             <!-- TẦNG 2: 200m -->
             <section class="ocean-zone-section" id="zone-200" data-depth="200" data-zone="Tầng Chạng Vạng (200m - 1000m)">
                 <div class="zone-card">
+                    <figure class="zone-visual">
+                        <img src="{{ asset('images/zones/tang-chang-vang.jpg') }}" alt="Đàn cá đèn lồng và mực thủy tinh ở tầng chạng vạng" width="1200" height="670" loading="lazy">
+                        <figcaption>Độ sâu 200 m – 1.000 m</figcaption>
+                    </figure>
                     <div class="zone-header">
                         <span class="zone-depth-pill">ĐỘ SÂU: 200m – 1,000m</span>
                         <span class="zone-topic">Di Cư Thẳng Đứng Hàng Đêm</span>
@@ -126,6 +134,10 @@
             <!-- TẦNG 3: 1000m -->
             <section class="ocean-zone-section" id="zone-1000" data-depth="1000" data-zone="Tầng Nửa Đêm (1000m - 4000m)">
                 <div class="zone-card">
+                    <figure class="zone-visual">
+                        <img src="{{ asset('images/zones/tang-nua-dem.jpg') }}" alt="Cá vây chân phát sáng trong bóng tối tầng nửa đêm" width="1200" height="670" loading="lazy">
+                        <figcaption>Độ sâu 1.000 m – 4.000 m</figcaption>
+                    </figure>
                     <div class="zone-header">
                         <span class="zone-depth-pill">ĐỘ SÂU: 1,000m – 4,000m</span>
                         <span class="zone-topic">Bóng Tối Vĩnh Cửu &amp; Phát Quang Sinh Học</span>
@@ -154,6 +166,10 @@
             <!-- TẦNG 4: 4000m -->
             <section class="ocean-zone-section" id="zone-4000" data-depth="4000" data-zone="Tầng Đáy Thẳm (4000m - 6000m)">
                 <div class="zone-card">
+                    <figure class="zone-visual">
+                        <img src="{{ asset('images/zones/tang-day-tham.jpg') }}" alt="Miệng phun thủy nhiệt và giun ống ở tầng đáy thẳm" width="1200" height="670" loading="lazy">
+                        <figcaption>Độ sâu 4.000 m – 6.000 m</figcaption>
+                    </figure>
                     <div class="zone-header">
                         <span class="zone-depth-pill">ĐỘ SÂU: 4,000m – 6,000m</span>
                         <span class="zone-topic">Miệng Phun Thủy Nhiệt &amp; Hóa Tổng Hợp</span>
@@ -182,6 +198,10 @@
             <!-- TẦNG 5: 6000m+ -->
             <section class="ocean-zone-section" id="zone-6000" data-depth="10984" data-zone="Tầng Hố Thẳm (Rãnh Mariana)">
                 <div class="zone-card">
+                    <figure class="zone-visual">
+                        <img src="{{ asset('images/zones/ranh-mariana.jpg') }}" alt="Cá sên Mariana bên vách đá rãnh Mariana" width="1200" height="670" loading="lazy">
+                        <figcaption>Độ sâu 6.000 m – 10.984 m</figcaption>
+                    </figure>
                     <div class="zone-header">
                         <span class="zone-depth-pill">ĐỘ SÂU: 6,000m – 10,984m</span>
                         <span class="zone-topic">Đã Chạm Đáy Vực Challenger Deep</span>
