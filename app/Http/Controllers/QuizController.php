@@ -4,130 +4,142 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Question;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
+use App\Models\QuizRun;
 use App\Models\QuizSet;
+use App\Services\TimedQuizRuns;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class QuizController extends Controller
 {
-    /**
-     * Bốc ngẫu nhiên 1 bộ đề đang kích hoạt kèm danh sách câu hỏi
-     */
-    public function play()
+    public function index(Request $request, TimedQuizRuns $runs)
     {
-        $quizSet = QuizSet::with('questions')
-            ->where('is_active', true)
-            ->has('questions')
-            ->inRandomOrder()
-            ->first();
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:200'],
+            'ocean_zone' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['completed', 'not_started'])],
+        ]);
+        $userId = $request->user()->id;
+        $runs->advanceDue($userId);
+        $availableSets = QuizSet::where('is_active', true)->has('questions');
+        $zones = (clone $availableSets)->select('ocean_zone')->distinct()->orderBy('ocean_zone')->pluck('ocean_zone');
+        $quizSets = $availableSets
+            ->withCount('questions')
+            ->withCount(['attempts as user_attempts_count' => fn ($query) => $query->where('user_id', $userId)])
+            ->when(trim($filters['search'] ?? ''), function ($query, $search) {
+                $query->where(fn ($query) => $query->where('title', 'like', '%'.$search.'%')->orWhere('topic', 'like', '%'.$search.'%'));
+            })
+            ->when($filters['ocean_zone'] ?? null, fn ($query, $zone) => $query->where('ocean_zone', $zone))
+            ->when(($filters['status'] ?? '') === 'completed', fn ($query) => $query->whereHas('attempts', fn ($query) => $query->where('user_id', $userId)))
+            ->when(($filters['status'] ?? '') === 'not_started', fn ($query) => $query->whereDoesntHave('attempts', fn ($query) => $query->where('user_id', $userId)))
+            ->latest('id')->paginate(10)->withQueryString();
 
-        if (! $quizSet) {
-            return redirect()->route('dashboard')
-                ->with('error', 'No active quiz sets found in the sonar database.');
-        }
-
-        return view('quiz.play', compact('quizSet'));
+        return view('quiz.index', compact('quizSets', 'zones', 'filters'));
     }
 
-    /**
-     * Nhận kết quả từ Kahoot UI qua AJAX, tính điểm và cập nhật Global Leaderboard
-     */
-    public function submit(Request $request)
+    public function history(Request $request, TimedQuizRuns $runs)
     {
-        $validated = $request->validate([
-            'quiz_set_id' => ['required', Rule::exists('quiz_sets', 'id')->where('is_active', true)],
-            'duration_seconds' => ['required', 'integer', 'min:1'],
-            'answers' => ['required', 'array'],
-            'answers.*.question_id' => ['required', 'exists:questions,id'],
-            'answers.*.selected_option_index' => ['nullable', 'integer'],
-            'answers.*.time_taken' => ['required', 'numeric', 'min:0'],
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:200'],
+            'ocean_zone' => ['nullable', 'string', 'max:255'],
+        ]);
+        $userId = $request->user()->id;
+        $runs->advanceDue($userId);
+        $zones = QuizSet::whereHas('attempts', fn ($query) => $query->where('user_id', $userId))
+            ->select('ocean_zone')->distinct()->orderBy('ocean_zone')->pluck('ocean_zone');
+        $attempts = QuizAttempt::with(['quizSet', 'answers.question'])
+            ->where('user_id', $userId)
+            ->when(trim($filters['search'] ?? ''), function ($query, $search) {
+                $query->whereHas('quizSet', fn ($query) => $query->where(fn ($query) => $query->where('title', 'like', '%'.$search.'%')->orWhere('topic', 'like', '%'.$search.'%')));
+            })
+            ->when($filters['ocean_zone'] ?? null, fn ($query, $zone) => $query->whereHas('quizSet', fn ($query) => $query->where('ocean_zone', $zone)))
+            ->latest('id')->paginate(10)->withQueryString();
+
+        return view('quiz.history', compact('attempts', 'zones', 'filters'));
+    }
+
+    public function random()
+    {
+        $quizSetId = QuizSet::where('is_active', true)
+            ->where('source', '!=', QuizSet::PAGINATION_DEMO_SOURCE)
+            ->has('questions')
+            ->inRandomOrder()
+            ->value('id');
+
+        if ($quizSetId === null) {
+            return to_route('quiz.index')->withErrors('Hiện chưa có bộ đề phù hợp để bắt đầu ngẫu nhiên.');
+        }
+
+        return to_route('quiz.play', ['quiz_set_id' => $quizSetId]);
+    }
+
+    public function play(Request $request, TimedQuizRuns $runs)
+    {
+        $data = $request->validate(['quiz_set_id' => ['nullable', 'integer', 'min:1']]);
+        if (empty($data['quiz_set_id'])) {
+            return to_route('quiz.index');
+        }
+
+        return to_route('quiz.run', $runs->open($request->user(), (int) $data['quiz_set_id']));
+    }
+
+    public function showRun(Request $request, QuizRun $run, TimedQuizRuns $runs)
+    {
+        $this->checkRunOwner($request, $run);
+
+        return response()->view('quiz.play', [
+            'quizSet' => $run->quizSet,
+            'runState' => $runs->state($run),
+        ])->header('Cache-Control', 'no-store');
+    }
+
+    public function runState(Request $request, QuizRun $run, TimedQuizRuns $runs)
+    {
+        $this->checkRunOwner($request, $run);
+
+        return response()->json($runs->state($run))->header('Cache-Control', 'no-store');
+    }
+
+    public function startRun(Request $request, QuizRun $run, TimedQuizRuns $runs)
+    {
+        $this->checkRunOwner($request, $run);
+
+        return response()->json($runs->state($run, startEarly: true));
+    }
+
+    public function answerRun(Request $request, QuizRun $run, TimedQuizRuns $runs)
+    {
+        $this->checkRunOwner($request, $run);
+        $data = $request->validate([
+            'question_id' => ['required', 'integer', 'min:1'],
+            'selected_option_index' => ['required', 'integer', 'min:0', 'max:3'],
         ]);
 
-        $user = Auth::user();
-        $totalScore = 0;
-        $correctCount = 0;
-        $totalQuestions = count($validated['answers']);
+        return response()->json($runs->state($run,
+            questionId: (int) $data['question_id'],
+            selectedOption: (int) $data['selected_option_index'],
+        ));
+    }
 
-        DB::beginTransaction();
-        try {
-            $attempt = QuizAttempt::create([
-                'user_id' => $user->id,
-                'quiz_set_id' => $validated['quiz_set_id'],
-                'score' => 0,
-                'correct_count' => 0,
-                'total_questions' => $totalQuestions,
-                'duration_seconds' => $validated['duration_seconds'],
-            ]);
-
-            foreach ($validated['answers'] as $ansData) {
-                $question = Question::find($ansData['question_id']);
-                $selectedIdx = $ansData['selected_option_index'];
-                $timeTaken = min((float) $ansData['time_taken'], (float) $question->time_limit);
-
-                $isCorrect = ($selectedIdx !== null && (int) $selectedIdx === (int) $question->correct_option_index);
-
-                // Công thức tính điểm chuẩn Kahoot: Tối đa 1000 điểm/câu, giảm dần theo thời gian phản xạ (tối thiểu 500 điểm nếu đúng)
-                $pointsEarned = 0;
-                if ($isCorrect) {
-                    $correctCount++;
-                    $timeLimit = max($question->time_limit, 1);
-                    $speedFactor = 1 - (($timeTaken / $timeLimit) * 0.5);
-                    $pointsEarned = (int) round(1000 * max($speedFactor, 0.5));
-                    $totalScore += $pointsEarned;
-                }
-
-                QuizAttemptAnswer::create([
-                    'quiz_attempt_id' => $attempt->id,
-                    'question_id' => $question->id,
-                    'selected_option_index' => $selectedIdx,
-                    'is_correct' => $isCorrect,
-                    'time_taken' => $timeTaken,
-                    'points_earned' => $pointsEarned,
-                ]);
-            }
-
-            $attempt->update([
-                'score' => $totalScore,
-                'correct_count' => $correctCount,
-            ]);
-
-            // Cập nhật điểm tích lũy và số bài đã hoàn thành của User cho Global Leaderboard
-            $user->increment('total_score', $totalScore);
-            $user->increment('quizzes_completed', 1);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'score' => $totalScore,
-                'correct_count' => $correctCount,
-                'total_questions' => $totalQuestions,
-                'redirect_url' => route('dashboard'),
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to save attempt: '.$e->getMessage(),
-            ], 500);
-        }
+    private function checkRunOwner(Request $request, QuizRun $run): void
+    {
+        abort_unless($run->user_id === $request->user()->id, 404);
     }
 
     /**
      * Tính năng Review Mistakes: Tự động gom các câu trả lời sai trong 5 lần làm bài gần nhất
      */
-    public function mistakes()
+    public function mistakes(TimedQuizRuns $runs)
     {
         $user = Auth::user();
+        $runs->advanceDue($user->id);
 
         // Lấy ID của 5 lần làm bài gần nhất
         $lastFiveAttemptIds = QuizAttempt::where('user_id', $user->id)
+            ->whereHas('quizSet', fn ($query) => $query->where('source', '!=', QuizSet::PAGINATION_DEMO_SOURCE))
             ->latest()
             ->take(5)
             ->pluck('id');

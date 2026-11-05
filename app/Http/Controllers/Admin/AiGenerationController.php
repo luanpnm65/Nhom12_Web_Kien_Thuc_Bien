@@ -16,7 +16,7 @@ class AiGenerationController extends Controller
 {
     public function index()
     {
-        return view('admin.ai', ['articles' => Article::orderBy('title')->get(), 'logs' => AiGenerationLog::with(['article', 'quizSet'])->latest()->paginate(15), 'configured' => (bool) config('services.gemini.key'), 'model' => config('services.gemini.model')]);
+        return view('admin.ai', ['articles' => Article::orderBy('title')->get(), 'logs' => AiGenerationLog::with(['article', 'quizSet'])->latest('id')->paginate(10)->withQueryString(), 'configured' => (bool) config('services.gemini.key'), 'model' => config('services.gemini.model')]);
     }
 
     public function store(Request $request, GeminiService $gemini)

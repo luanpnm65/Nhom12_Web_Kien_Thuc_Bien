@@ -82,10 +82,11 @@ class QuestionGenerationTest extends TestCase
         $this->assertCount(5, $set->questions);
         $this->assertSame(['A 1', 'B 1', 'C 1', 'D 1'], $set->questions->first()->options);
         $this->get('/admin/question-sets/'.$set->id.'/edit')->assertOk()->assertSee('Câu 5');
-        $this->get('/quiz/play')->assertRedirect('/dashboard');
+        $this->get('/quiz/play')->assertRedirect('/quiz');
+        $this->get('/quiz/play?quiz_set_id='.$set->id)->assertNotFound();
         $this->post('/admin/question-sets/'.$set->id.'/publish')->assertRedirect()->assertSessionHasNoErrors();
         $this->assertTrue($set->fresh()->is_active);
-        $this->get('/quiz/play')->assertOk()->assertSee('Quiz cá voi');
+        $this->followingRedirects()->get('/quiz/play?quiz_set_id='.$set->id)->assertOk()->assertSee('Quiz cá voi');
         $this->assertDatabaseHas('ai_generation_logs', ['status' => 'success', 'quiz_set_id' => $set->id]);
         Http::assertSent(fn ($r) => $r->hasHeader('x-goog-api-key', 'test-secret') && ! str_contains($r->url(), 'test-secret'));
         $this->patch('/admin/articles/'.$a->id, ['title' => 'Đổi', 'content' => str_repeat('x', 100)])->assertStatus(422);
@@ -132,7 +133,7 @@ class QuestionGenerationTest extends TestCase
         $this->patch('/admin/question-sets/'.$set->id, $data)->assertStatus(422);
         $this->delete('/admin/question-sets/'.$set->id)->assertStatus(422);
         $this->assertDatabaseHas('quiz_attempts', ['quiz_set_id' => $set->id, 'score' => 100]);
-        $this->postJson('/quiz/submit', ['quiz_set_id' => $set->id, 'duration_seconds' => 10, 'answers' => []])->assertUnprocessable();
+        $this->get('/quiz/play?quiz_set_id='.$set->id)->assertNotFound();
     }
 
     public function test_migration_backfills_existing_content_without_changing_publication_or_scores(): void
@@ -154,7 +155,9 @@ class QuestionGenerationTest extends TestCase
         $this->seed();
         $this->assertDatabaseCount('articles', 2);
         $this->assertSame(0, QuizSet::whereNull('article_id')->count());
-        $this->actingAs(User::where('email', 'admin@ocean.io')->firstOrFail())->get('/quiz/play')->assertOk();
+        $set = QuizSet::where('is_active', true)->has('questions')->firstOrFail();
+        $this->actingAs(User::where('email', 'admin@ocean.io')->firstOrFail())->get('/quiz')->assertOk()->assertSee($set->title);
+        $this->followingRedirects()->get('/quiz/play?quiz_set_id='.$set->id)->assertOk()->assertSee($set->title);
     }
 
     public function test_admin_workspace_searches_previews_and_saves_reviewed_questions(): void

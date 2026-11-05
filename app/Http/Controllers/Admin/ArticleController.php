@@ -12,7 +12,7 @@ class ArticleController extends Controller
 {
     public function index()
     {
-        return view('admin.articles.index', ['articles' => Article::withCount('quizSets')->latest()->paginate(15)]);
+        return view('admin.articles.index', ['articles' => Article::withCount('quizSets')->latest('id')->paginate(10)->withQueryString()]);
     }
 
     public function create()
