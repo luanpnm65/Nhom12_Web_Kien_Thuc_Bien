@@ -35,7 +35,7 @@ class QuestionGenerationTest extends TestCase
 
     private function generate(Article $a)
     {
-        return $this->post('/admin/ai', ['article_id' => $a->id, 'title' => 'Quiz cá voi', 'ocean_zone' => 'Tầng Ánh Sáng (0m - 200m)']);
+        return $this->post('/admin/ai', ['article_id' => $a->id, 'title' => 'Quiz cá voi']);
     }
 
     private function fakeGemini(array $questions): void
@@ -79,6 +79,7 @@ class QuestionGenerationTest extends TestCase
         $this->generate($a)->assertSessionHasNoErrors()->assertRedirect();
         $set = QuizSet::firstOrFail();
         $this->assertFalse($set->is_active);
+        $this->assertSame('Chưa phân loại', $set->ocean_zone);
         $this->assertCount(5, $set->questions);
         $this->assertSame(['A 1', 'B 1', 'C 1', 'D 1'], $set->questions->first()->options);
         $this->get('/admin/question-sets/'.$set->id.'/edit')->assertOk()->assertSee('Câu 5');
