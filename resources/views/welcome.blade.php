@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Khám Phá Độ Sâu Đại Dương | AbyssalMind')
+@section('title', 'Khám Phá Độ Sâu Đại Dương | OceanQuiz')
 
 @section('content')
 <section class="hero" style="--hero-image: url('{{ asset('images/ocean-hero.jpg') }}');">

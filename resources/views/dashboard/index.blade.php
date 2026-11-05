@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Bảng Điều Khiển Cá Nhân | AbyssalMind')
+@section('title', 'Bảng Điều Khiển Cá Nhân | OceanQuiz')
 
 @section('content')
 <div class="container">

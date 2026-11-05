@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Lịch sử làm bài | AbyssalMind')
+@section('title', 'Lịch sử làm bài | OceanQuiz')
 @section('content')
 <div class="container library-page history-page">
     <header class="library-heading">
