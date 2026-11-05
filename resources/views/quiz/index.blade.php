@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Chọn bài làm | AbyssalMind')
+@section('title', 'Chọn bài làm | OceanQuiz')
 @section('content')
 <div class="container library-page">
     <header class="library-heading">

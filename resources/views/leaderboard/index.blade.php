@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Bảng Xếp Hạng Toàn Cầu | AbyssalMind')
+@section('title', 'Bảng Xếp Hạng Toàn Cầu | OceanQuiz')
 
 @section('content')
 <div class="container" style="max-width: 1000px;">

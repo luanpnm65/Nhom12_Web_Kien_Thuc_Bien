@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Đăng Nhập | AbyssalMind')
+@section('title', 'Đăng Nhập | OceanQuiz')
 
 @section('content')
 <div class="auth-page" style="--hero-image: url('{{ asset('images/ocean-hero.jpg') }}');">
