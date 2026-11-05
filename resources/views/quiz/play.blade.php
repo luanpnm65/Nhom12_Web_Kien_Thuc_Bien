@@ -7,20 +7,22 @@
     data-state-url="{{ route('quiz.run.state', ['run' => $runState['id']]) }}"
     data-start-url="{{ route('quiz.run.start', ['run' => $runState['id']]) }}"
     data-answer-url="{{ route('quiz.run.answer', ['run' => $runState['id']]) }}">
-    <a class="btn btn-outline" href="{{ route('quiz.index') }}">← Chọn bộ đề khác</a>
+
+    <div class="quiz-play-header">
+        <a class="btn btn-outline" href="{{ route('quiz.index') }}">Chọn bộ đề khác</a>
+    </div>
+
     <p id="quizConnectionStatus" role="status" hidden></p>
     <noscript><p class="library-error">Hãy bật JavaScript để xem và tiếp tục lượt làm bài.</p></noscript>
 
-    <!-- BƯỚC 1: GIAI ĐOẠN ĐỌC HIỂU TƯ LIỆU (3 PHÚT) -->
+    <!-- BƯỚC 1: ĐỌC HIỂU TƯ LIỆU -->
     <div id="readingPhaseContainer" class="reading-journal-box" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div class="phase-topline">
             <div>
-                <span class="zone-depth-pill">BƯỚC 1 / 2 • ĐỌC TƯ LIỆU KHOA HỌC</span>
-                <span style="margin-left: 0.65rem; font-size: 0.85rem; color: var(--text-muted);">🌊 {{ $quizSet->ocean_zone }}</span>
+                <span class="zone-depth-pill">BƯỚC 1 / 2 · ĐỌC TƯ LIỆU</span>
+                <span class="phase-zone">{{ $quizSet->ocean_zone }}</span>
             </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 700; color: var(--cyan-glow);">
-                ⏳ <span id="readingTimeText">--:--</span>
-            </div>
+            <div class="timer-value"><span id="readingTimeText">--:--</span></div>
         </div>
 
         <div class="timer-progress-wrapper">
@@ -31,30 +33,32 @@
 
         <article class="journal-passage">{{ $quizSet->reading_passage }}</article>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1.5rem; margin-top: 1.5rem;">
-            <div style="font-size: 0.88rem; color: var(--text-muted);">
-                📌 Gồm <strong>{{ $runState['total_questions'] }} câu hỏi tính điểm tốc độ</strong> dựa trên bài đọc này. Đồng hồ vẫn chạy khi bạn rời trang.
-            </div>
-            <button type="button" id="startQuizEarlyBtn" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.9rem 1.8rem;">
-                ⚡ Bắt Đầu Trả Lời Sớm →
+        <div class="phase-footer">
+            <p class="phase-note">
+                Gồm <strong>{{ $runState['total_questions'] }} câu hỏi tính điểm tốc độ</strong> dựa trên bài đọc này. Đồng hồ vẫn chạy khi bạn rời trang.
+            </p>
+            <button type="button" id="startQuizEarlyBtn" class="btn btn-primary" style="padding: 0.85rem 1.6rem;">
+                Bắt đầu trả lời
             </button>
         </div>
     </div>
 
-    <!-- BƯỚC 2: GIAO DIỆN THI KAHOOT -->
+    <!-- BƯỚC 2: GIAO DIỆN THI -->
     <div id="kahootPhaseContainer" class="kahoot-arena" style="display: none;">
-
-        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(12, 25, 48, 0.85); padding: 1rem 1.5rem; border-radius: 16px; border: 1px solid var(--border-glass);">
-            <div style="font-weight: 700;">
-                Câu hỏi <span id="qCurrentIndex" style="color: var(--cyan-glow);">1</span> / {{ $runState['total_questions'] }}
+        <div class="kahoot-topbar">
+            <div class="topbar-cell">
+                <span class="topbar-label">Câu hỏi</span>
+                <strong><span id="qCurrentIndex">1</span> / {{ $runState['total_questions'] }}</strong>
             </div>
 
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.45rem; font-weight: 800; color: #fbbf24;">
-                ⏱️ <span id="questionTimerDisplay">--.-</span>s
+            <div class="topbar-cell timer-value">
+                <span class="topbar-label">Thời gian</span>
+                <strong><span id="questionTimerDisplay">--.-</span>s</strong>
             </div>
 
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800; color: #4ade80;">
-                🏆 <span id="liveScoreDisplay">0</span> điểm
+            <div class="topbar-cell score-value">
+                <span class="topbar-label">Điểm</span>
+                <strong><span id="liveScoreDisplay">0</span></strong>
             </div>
         </div>
 
@@ -63,10 +67,10 @@
         </div>
 
         <div class="kahoot-question-banner" id="kahootQuestionText">
-            Đang tải câu hỏi...
+            Đang tải câu hỏi…
         </div>
 
-        <div id="instantFeedbackBanner" role="status" style="display: none; padding: 1rem 1.5rem; border-radius: 14px; text-align: center; font-weight: 700; font-size: 1.15rem;"></div>
+        <div id="instantFeedbackBanner" role="status" style="display: none; padding: 1rem 1.5rem; text-align: center;"></div>
 
         <div class="kahoot-options-grid">
             <button type="button" class="kahoot-btn opt-0" disabled>
@@ -88,26 +92,26 @@
         </div>
     </div>
 
-    <!-- MÀN HÌNH TỔNG KẾT ĐIỂM -->
+    <!-- TỔNG KẾT -->
     <div id="quizCompletionBox" class="reading-journal-box" style="display: none; text-align: center;">
-        <div style="font-size: 4rem; margin-bottom: 0.5rem;">🏆</div>
-        <h2 style="font-size: 2.2rem;">Hoàn Thành Chuyến Thám Hiểm!</h2>
-        <p id="quizSaveStatus" role="status" style="color: var(--text-muted); margin-bottom: 1.5rem;">Đang lưu kết quả…</p>
+        <span class="zone-depth-pill">HOÀN THÀNH</span>
+        <h2 style="font-size: 2rem; margin: 1rem 0 0.5rem;">Hoàn thành chuyến thám hiểm</h2>
+        <p id="quizSaveStatus" role="status" style="color: var(--ink-soft); margin-bottom: 1.5rem;">Đang lưu kết quả…</p>
 
         <div class="stat-grid-2" style="max-width: 480px; margin: 1.5rem auto;">
             <div class="stat-tile">
-                <div style="font-size: 0.8rem; color: var(--text-muted);">ĐIỂM ĐẠT ĐƯỢC</div>
+                <div style="font-size: 0.74rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em;">Điểm đạt được</div>
                 <div class="value" id="finalScoreValue">0</div>
             </div>
             <div class="stat-tile">
-                <div style="font-size: 0.8rem; color: var(--text-muted);">SỐ CÂU ĐÚNG</div>
+                <div style="font-size: 0.74rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em;">Số câu đúng</div>
                 <div class="value" id="finalAccuracyValue">0/0</div>
             </div>
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
-            <a href="{{ route('quiz.history') }}" class="btn btn-primary">📊 Xem Chi Tiết Đúng/Sai</a>
-            <a href="{{ route('leaderboard') }}" class="btn btn-outline">🌍 Bảng Xếp Hạng</a>
+        <div class="play-actions">
+            <a href="{{ route('quiz.history') }}" class="btn btn-primary">Xem chi tiết đúng/sai</a>
+            <a href="{{ route('leaderboard') }}" class="btn btn-outline">Bảng xếp hạng</a>
         </div>
     </div>
 

@@ -8,7 +8,7 @@
             <h1>Chọn chuyến thám hiểm của bạn</h1>
             <p>Tìm chủ đề yêu thích, chọn bộ đề và bắt đầu đọc hiểu trước khi trả lời câu hỏi.</p>
         </div>
-        <a class="btn btn-outline" href="{{ route('quiz.history') }}">📜 Lịch sử làm bài</a>
+        <a class="btn btn-outline" href="{{ route('quiz.history') }}">Lịch sử làm bài</a>
     </header>
 
     <form class="bento-card library-filters" method="get" action="{{ route('quiz.index') }}" aria-label="Tìm và lọc bộ đề">
@@ -50,7 +50,7 @@
         @forelse($quizSets as $set)
             <article class="bento-card quiz-catalog-card">
                 <div class="catalog-card-meta">
-                    <span class="zone-depth-pill">🌊 {{ $set->ocean_zone }}</span>
+                    <span class="zone-depth-pill">{{ $set->ocean_zone }}</span>
                     <span class="completion-badge {{ $set->user_attempts_count ? 'completed' : '' }}">{{ $set->user_attempts_count ? 'Đã làm' : 'Chưa làm' }}</span>
                 </div>
                 <h3>{{ $set->title }}</h3>
