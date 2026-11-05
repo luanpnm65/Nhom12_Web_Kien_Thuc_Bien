@@ -30,8 +30,14 @@ Route::middleware('auth')->group(function () {
 
 // --- KHU VỰC CỦA THÀNH VIÊN 2 (CONTRIBUTOR A): QUIZ WORKFLOW, KAHOOT UI & REVIEW MISTAKES ---
 Route::middleware('auth')->prefix('quiz')->name('quiz.')->group(function () {
+    Route::get('/', [QuizController::class, 'index'])->name('index');
+    Route::get('/history', [QuizController::class, 'history'])->name('history');
+    Route::get('/random', [QuizController::class, 'random'])->name('random');
     Route::get('/play', [QuizController::class, 'play'])->name('play');
-    Route::post('/submit', [QuizController::class, 'submit'])->name('submit');
+    Route::get('/run/{run}', [QuizController::class, 'showRun'])->name('run');
+    Route::get('/run/{run}/state', [QuizController::class, 'runState'])->name('run.state');
+    Route::post('/run/{run}/start', [QuizController::class, 'startRun'])->name('run.start');
+    Route::post('/run/{run}/answer', [QuizController::class, 'answerRun'])->name('run.answer');
     Route::get('/mistakes', [QuizController::class, 'mistakes'])->name('mistakes');
 });
 

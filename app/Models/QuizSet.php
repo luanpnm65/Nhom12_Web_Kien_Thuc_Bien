@@ -9,6 +9,8 @@ class QuizSet extends Model
 {
     use HasFactory;
 
+    public const PAGINATION_DEMO_SOURCE = 'pagination_demo';
+
     protected $fillable = [
         'article_id',
         'source',
@@ -38,6 +40,11 @@ class QuizSet extends Model
     public function attempts()
     {
         return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function runs()
+    {
+        return $this->hasMany(QuizRun::class);
     }
 
     public function creator()

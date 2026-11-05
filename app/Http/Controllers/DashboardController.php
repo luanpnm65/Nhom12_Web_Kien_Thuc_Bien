@@ -3,23 +3,29 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\QuizAttempt;
-use Illuminate\Http\Request;
+use App\Models\QuizSet;
+use App\Services\TimedQuizRuns;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(TimedQuizRuns $runs)
     {
         $user = Auth::user();
+        $runs->advanceDue($user->id);
+        $user->refresh();
 
         // Tính thứ hạng toàn cầu (Global Rank)
-        $higherScorersCount = User::where('total_score', '>', $user->total_score)->count();
+        $higherScorersCount = User::where('total_score', '>', $user->total_score)
+            ->orWhere(fn ($query) => $query->where('total_score', $user->total_score)->where('id', '<', $user->id))
+            ->count();
         $globalRank = $higherScorersCount + 1;
 
         // Lấy 5 lần làm bài gần nhất kèm chi tiết từng câu hỏi & câu trả lời
         $recentAttempts = QuizAttempt::with(['quizSet', 'answers.question'])
             ->where('user_id', $user->id)
-            ->latest()
+            ->whereHas('quizSet', fn ($query) => $query->where('source', '!=', QuizSet::PAGINATION_DEMO_SOURCE))
+            ->latest('id')
             ->take(5)
             ->get();
 

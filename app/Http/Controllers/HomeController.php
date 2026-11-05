@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Services\TimedQuizRuns;
 
 class HomeController extends Controller
 {
@@ -11,12 +11,13 @@ class HomeController extends Controller
         return view('welcome');
     }
 
-    public function leaderboard()
+    public function leaderboard(TimedQuizRuns $runs)
     {
+        $runs->advanceDue();
         $leaders = User::orderByDesc('total_score')
-            ->orderByDesc('quizzes_completed')
-            ->take(50)
-            ->get();
+            ->orderBy('id')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('leaderboard.index', compact('leaders'));
     }
