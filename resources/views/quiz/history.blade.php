@@ -15,15 +15,6 @@
             <label for="search">Tên bài hoặc chủ đề</label>
             <input class="form-control" type="search" id="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Tìm bài đã làm…" maxlength="200">
         </div>
-        <div class="filter-field">
-            <label for="ocean_zone">Tầng đại dương</label>
-            <select class="form-control" id="ocean_zone" name="ocean_zone">
-                <option value="">Tất cả tầng</option>
-                @foreach($zones as $zone)
-                    <option value="{{ $zone }}" @selected(($filters['ocean_zone'] ?? '') === $zone)>{{ $zone }}</option>
-                @endforeach
-            </select>
-        </div>
         <div class="filter-actions">
             <button class="btn btn-primary" type="submit">Tìm lịch sử</button>
             <a class="btn btn-outline" href="{{ route('quiz.history') }}">Xóa lọc</a>
@@ -41,8 +32,8 @@
             @include('quiz.partials.attempt', ['attempt' => $attempt])
         @empty
             <div class="bento-card library-empty">
-                <h2>{{ request()->filled('search') || request()->filled('ocean_zone') ? 'Không tìm thấy lượt làm phù hợp' : 'Bạn chưa có lượt làm bài nào' }}</h2>
-                <p>{{ request()->filled('search') || request()->filled('ocean_zone') ? 'Thử đổi từ khóa hoặc xóa bộ lọc để xem lại lịch sử.' : 'Chọn một bộ đề để bắt đầu chuyến thám hiểm đầu tiên.' }}</p>
+                <h2>{{ request()->filled('search') ? 'Không tìm thấy lượt làm phù hợp' : 'Bạn chưa có lượt làm bài nào' }}</h2>
+                <p>{{ request()->filled('search') ? 'Thử đổi từ khóa hoặc xóa bộ lọc để xem lại lịch sử.' : 'Chọn một bộ đề để bắt đầu chuyến thám hiểm đầu tiên.' }}</p>
                 <a class="btn btn-outline" href="{{ route('quiz.index') }}">Khám phá bộ đề</a>
             </div>
         @endforelse

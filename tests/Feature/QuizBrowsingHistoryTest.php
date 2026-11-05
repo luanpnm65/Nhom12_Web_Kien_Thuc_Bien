@@ -115,17 +115,16 @@ class QuizBrowsingHistoryTest extends TestCase
         $this->assertDatabaseCount('quiz_attempts', 0);
     }
 
-    public function test_catalog_combines_title_or_topic_zone_and_personal_completion_filters(): void
+    public function test_catalog_combines_title_or_topic_and_personal_completion_filters(): void
     {
         $user = User::factory()->create();
         $other = User::factory()->create();
         $completed = $this->quiz('Cá voi đã làm');
         $notStarted = $this->quiz('Khám phá mới', ['topic' => 'Cá voi']);
-        $this->quiz('Cá voi ở biển sâu', ['ocean_zone' => 'Tầng biển sâu']);
         $this->quiz('Chủ đề san hô', ['topic' => 'San hô']);
         $this->attempt($user, $completed);
         $this->attempt($other, $notStarted);
-        $query = ['search' => 'Cá voi', 'ocean_zone' => 'Tầng ánh sáng'];
+        $query = ['search' => 'Cá voi'];
 
         $this->actingAs($user)->get('/quiz?'.http_build_query($query + ['status' => 'not_started']))
             ->assertOk()->assertViewHas('quizSets', fn ($sets) => $sets->pluck('id')->all() === [$notStarted->id]);
@@ -137,7 +136,7 @@ class QuizBrowsingHistoryTest extends TestCase
     {
         $user = User::factory()->create();
         $sets = collect(range(1, 12))->map(fn ($i) => $this->quiz('Bộ lọc cá voi '.$i));
-        $query = ['search' => 'cá voi', 'ocean_zone' => 'Tầng ánh sáng', 'status' => 'not_started'];
+        $query = ['search' => 'cá voi', 'status' => 'not_started'];
         $this->actingAs($user);
         $page = $this->get('/quiz?'.http_build_query($query))->assertOk()->viewData('quizSets');
         $this->assertInstanceOf(LengthAwarePaginator::class, $page);
@@ -183,20 +182,18 @@ class QuizBrowsingHistoryTest extends TestCase
             ->assertSee('Giải thích của '.$old->title)->assertDontSee($privateSet->title);
     }
 
-    public function test_history_search_and_zone_filters_are_restricted_to_current_user(): void
+    public function test_history_search_is_restricted_to_current_user(): void
     {
         $user = User::factory()->create();
         $other = User::factory()->create();
         $match = $this->quiz('Nhật ký cá voi');
-        $wrongZone = $this->quiz('Nhật ký cá voi sâu', ['ocean_zone' => 'Tầng biển sâu']);
         $otherTopic = $this->quiz('Nhật ký san hô');
         $expected = $this->attempt($user, $match, true);
         $this->attempt($other, $match);
-        $this->attempt($user, $wrongZone);
         $this->attempt($user, $otherTopic);
 
         $this->actingAs($user)->get('/quiz/history?'.http_build_query([
-            'search' => 'cá voi', 'ocean_zone' => 'Tầng ánh sáng',
+            'search' => 'cá voi',
         ]))->assertOk()->assertViewHas('attempts', fn ($items) => $items->pluck('id')->all() === [$expected->id]);
     }
 

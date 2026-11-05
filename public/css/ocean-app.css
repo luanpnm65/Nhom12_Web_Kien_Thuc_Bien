@@ -755,7 +755,7 @@ select.form-control {
 
 .library-filters {
     display: grid;
-    grid-template-columns: minmax(200px, 1.5fr) minmax(180px, 1fr) minmax(150px, 0.8fr);
+    grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr);
     gap: 1rem;
     padding: 1.4rem;
 }
@@ -780,7 +780,7 @@ select.form-control {
 }
 
 .library-filters.history-filters {
-    grid-template-columns: minmax(200px, 1.5fr) minmax(180px, 1fr);
+    grid-template-columns: minmax(220px, 1fr);
 }
 
 .library-results-heading {

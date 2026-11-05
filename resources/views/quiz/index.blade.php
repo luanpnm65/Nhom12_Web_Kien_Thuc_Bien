@@ -17,15 +17,6 @@
             <input class="form-control" type="search" id="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Ví dụ: Cá voi, Rãnh Mariana…" maxlength="200">
         </div>
         <div class="filter-field">
-            <label for="ocean_zone">Tầng đại dương</label>
-            <select class="form-control" id="ocean_zone" name="ocean_zone">
-                <option value="">Tất cả tầng</option>
-                @foreach($zones as $zone)
-                    <option value="{{ $zone }}" @selected(($filters['ocean_zone'] ?? '') === $zone)>{{ $zone }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="filter-field">
             <label for="status">Trạng thái làm bài</label>
             <select class="form-control" id="status" name="status">
                 <option value="">Tất cả bài</option>
