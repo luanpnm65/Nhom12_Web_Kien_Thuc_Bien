@@ -37,7 +37,7 @@
     </div>
     <section class="panel panel-table"><h2>Danh sách bộ đề</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Danh sách bộ đề"><table class="data-table"><thead><tr><th>Mã</th><th>Tiêu đề và nguồn</th><th>Tầng đại dương</th><th>Số câu</th><th>Lượt làm bài</th><th>Thao tác</th></tr></thead><tbody>
     @forelse($quizSets as $item)<tr><td>#{{ $item->id }}</td><td><span class="table-title">{{ $item->title }}</span><div class="table-source">@if($item->source_url)<a href="{{ $item->source_url }}" target="_blank" rel="noopener noreferrer">{{ parse_url($item->source_url,PHP_URL_HOST) }}</a>@endif</div><span class="status-badge {{ $item->is_active?'published':'' }}">{{ $item->is_active?'Đã xuất bản':'Bản nháp' }}</span></td><td><span class="zone-dot"></span>{{ $item->ocean_zone }}</td><td>{{ $item->questions_count }} câu</td><td>{{ $item->attempts_count }} lượt</td><td><a class="btn btn-outline" href="{{ route('admin.question-sets.edit',$item) }}">{{ $item->is_active?'Xem':'Biên tập' }}</a></td></tr>@empty<tr><td colspan="6">Chưa có bộ đề. Bắt đầu bằng cách tìm bài viết Wikipedia.</td></tr>@endforelse
-    </tbody></table></div></section>
+    </tbody></table></div>{{ $quizSets->onEachSide(1)->links('pagination.ocean') }}</section>
 </div>
 @endsection
 @push('scripts')<script>document.querySelector('[data-generation-form]').addEventListener('submit',function(){const button=this.querySelector('button');button.disabled=true;button.textContent='Đang tạo câu hỏi, vui lòng chờ…';});</script>@endpush

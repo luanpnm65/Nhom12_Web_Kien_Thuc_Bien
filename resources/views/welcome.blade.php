@@ -199,7 +199,7 @@
 
         <div style="display: flex; gap: 0.85rem;">
             @auth
-                <a href="{{ route('quiz.play') }}" class="btn btn-primary">🚀 Vào Làm Quiz Ngay</a>
+                <a href="{{ route('quiz.index') }}" class="btn btn-primary">🚀 Vào Làm Quiz Ngay</a>
                 <a href="{{ route('dashboard') }}" class="btn btn-outline">Bảng Điều Khiển</a>
             @else
                 <a href="{{ route('login') }}" class="btn btn-outline">🔐 Đăng Nhập</a>

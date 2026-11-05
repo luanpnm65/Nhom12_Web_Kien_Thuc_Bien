@@ -8,28 +8,30 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;">
             <div>
                 <h1 style="font-size: 1.85rem;">🏆 Bảng Xếp Hạng Đại Dương Toàn Cầu</h1>
-                <p style="color: var(--text-muted); font-size: 0.92rem;">Xếp hạng các nhà thám hiểm có tổng điểm cao nhất và số bài hoàn thành nhiều nhất</p>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">Xếp hạng theo tổng điểm từ lượt làm đầu tiên của mỗi đề.</p>
             </div>
-            <a href="{{ route('quiz.play') }}" class="btn btn-primary">🚀 Thi Đua Điểm Số Ngay</a>
+            <a href="{{ route('quiz.index') }}" class="btn btn-primary">🚀 Thi Đua Điểm Số Ngay</a>
         </div>
 
+        <div class="leaderboard-table-wrap" tabindex="0" role="region" aria-label="Bảng xếp hạng nhà thám hiểm">
         <table class="data-table">
             <thead>
                 <tr>
                     <th>Hạng</th>
                     <th>Tên Nhà Thám Hiểm</th>
-                    <th>Số Bài Đã Hoàn Thành</th>
+                    <th>Số Lượt Đã Hoàn Thành</th>
                     <th style="text-align: right;">Tổng Điểm</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($leaders as $idx => $leader)
+                @forelse($leaders as $idx => $leader)
+                    @php($rank = $leaders->firstItem() + $idx)
                     <tr style="{{ auth()->id() === $leader->id ? 'background: rgba(0, 242, 254, 0.12);' : '' }}">
                         <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">
-                            @if($idx === 0) 🥇 #1
-                            @elseif($idx === 1) 🥈 #2
-                            @elseif($idx === 2) 🥉 #3
-                            @else #{{ $idx + 1 }}
+                            @if($rank === 1) 🥇 #1
+                            @elseif($rank === 2) 🥈 #2
+                            @elseif($rank === 3) 🥉 #3
+                            @else #{{ $rank }}
                             @endif
                         </td>
                         <td>
@@ -45,9 +47,13 @@
                             {{ number_format($leader->total_score) }} điểm
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr><td colspan="4">Chưa có nhà thám hiểm nào trong bảng xếp hạng.</td></tr>
+                @endforelse
             </tbody>
         </table>
+        </div>
+        {{ $leaders->onEachSide(1)->links('pagination.ocean') }}
     </div>
 </div>
 @endsection
