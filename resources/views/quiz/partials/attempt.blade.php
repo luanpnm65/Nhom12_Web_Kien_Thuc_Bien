@@ -4,8 +4,8 @@
             <h3>{{ $attempt->quizSet->title ?? 'Bộ đề không còn khả dụng' }}</h3>
             <div class="attempt-meta">
                 <time datetime="{{ $attempt->created_at->toIso8601String() }}">{{ $attempt->created_at->copy()->timezone('Asia/Ho_Chi_Minh')->format('d/m/Y H:i') }} (VN)</time>
-                <span>🌊 {{ $attempt->quizSet->ocean_zone ?? 'Biển sâu' }}</span>
-                <span>⏱ {{ intdiv($attempt->duration_seconds, 60) }} phút {{ $attempt->duration_seconds % 60 }} giây</span>
+                <span>{{ $attempt->quizSet->ocean_zone ?? 'Biển sâu' }}</span>
+                <span>{{ intdiv($attempt->duration_seconds, 60) }} phút {{ $attempt->duration_seconds % 60 }} giây</span>
             </div>
         </div>
         <div class="attempt-result">
@@ -34,7 +34,7 @@
                 <p>Bạn chọn: <strong class="{{ $ans->is_correct ? 'answer-correct' : 'answer-incorrect' }}">{{ $userChoiceText }}</strong></p>
                 <p>Đáp án đúng: <strong class="answer-correct">{{ $correctChoiceText }}</strong></p>
                 @if($q && $q->explanation)
-                    <p class="answer-explanation">💡 Giải thích: {{ $q->explanation }}</p>
+                    <p class="answer-explanation">Giải thích: {{ $q->explanation }}</p>
                 @endif
             </div>
         @empty

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Chọn bài làm | AbyssalMind')
+@section('title', 'Chọn bài làm | OceanQuiz')
 @section('content')
 <div class="container library-page">
     <header class="library-heading">
@@ -8,22 +8,13 @@
             <h1>Chọn chuyến thám hiểm của bạn</h1>
             <p>Tìm chủ đề yêu thích, chọn bộ đề và bắt đầu đọc hiểu trước khi trả lời câu hỏi.</p>
         </div>
-        <a class="btn btn-outline" href="{{ route('quiz.history') }}">📜 Lịch sử làm bài</a>
+        <a class="btn btn-outline" href="{{ route('quiz.history') }}">Lịch sử làm bài</a>
     </header>
 
     <form class="bento-card library-filters" method="get" action="{{ route('quiz.index') }}" aria-label="Tìm và lọc bộ đề">
         <div class="filter-field filter-search">
             <label for="search">Tên bài hoặc chủ đề</label>
             <input class="form-control" type="search" id="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Ví dụ: Cá voi, Rãnh Mariana…" maxlength="200">
-        </div>
-        <div class="filter-field">
-            <label for="ocean_zone">Tầng đại dương</label>
-            <select class="form-control" id="ocean_zone" name="ocean_zone">
-                <option value="">Tất cả tầng</option>
-                @foreach($zones as $zone)
-                    <option value="{{ $zone }}" @selected(($filters['ocean_zone'] ?? '') === $zone)>{{ $zone }}</option>
-                @endforeach
-            </select>
         </div>
         <div class="filter-field">
             <label for="status">Trạng thái làm bài</label>
@@ -50,7 +41,7 @@
         @forelse($quizSets as $set)
             <article class="bento-card quiz-catalog-card">
                 <div class="catalog-card-meta">
-                    <span class="zone-depth-pill">🌊 {{ $set->ocean_zone }}</span>
+                    <span class="zone-depth-pill">{{ $set->ocean_zone }}</span>
                     <span class="completion-badge {{ $set->user_attempts_count ? 'completed' : '' }}">{{ $set->user_attempts_count ? 'Đã làm' : 'Chưa làm' }}</span>
                 </div>
                 <h3>{{ $set->title }}</h3>
